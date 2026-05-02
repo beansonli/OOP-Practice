@@ -40,15 +40,50 @@ Write a `main()` function that:
 using namespace std;
 
 class HardwareComponent{
-   virtual void initialize()=0;
+   public:
+      virtual void initialize()=0;
+      virtual ~HardwareComponent() {}
 };
 
 class Sensor : virtual public HardwareComponent{
+   private:
+      float sensitivity, *rawDataLog;
+      int samplingRate;
 
+   public:
+
+      float getSignalValue(){
+
+      }
+
+      void calibrate(){
+
+      }
+
+      void initialize() override{
+
+      }
 };
 
 class Actuator: virtual public HardwareComponent{
+   private:
+      float maxTorque;
+      int currentAngle;
+      bool isEngaged;
 
+   public:
+
+      void rotate(int angle){
+
+      }
+
+      void applyResistance(float force){
+
+      }
+      
+      void initialize() override{
+
+      }
 };
 
 class Calibrator;
@@ -143,12 +178,13 @@ int main(){
       cout<<"Enter buffer size: ";
       cin>>size;
 
-      cout<<"Enter buffer constituents: \n";
+      cout<<"Enter buffer constituents (decimal values): \n";
       for(int j=0; j<size; j++) cin>>buffer[j];
 
       components[i] = new NeuralJoint(buffer, size);
    }
-   
+
+   components[1]->initialize();
    
    return 0;
 }
