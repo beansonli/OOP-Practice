@@ -52,6 +52,8 @@ class Sensor : virtual public HardwareComponent{
 
    public:
 
+      Sensor(){ initialize(); }
+
       inline void setSamplingRate(const int rate){
          samplingRate = rate;
       }
@@ -60,6 +62,8 @@ class Sensor : virtual public HardwareComponent{
          sensitivity = 0.00;
          samplingRate = 5;
       }
+
+      ~Sensor() {};
 };
 
 class Actuator: virtual public HardwareComponent{
@@ -69,6 +73,7 @@ class Actuator: virtual public HardwareComponent{
       bool isEngaged=0;
 
    public:
+      Actuator(){ initialize(); }
 
       inline void rotate(int angle){
          currentAngle += angle;
@@ -83,13 +88,15 @@ class Actuator: virtual public HardwareComponent{
          isEngaged = 1;
          maxTorque = 0.00;
       }
+
+      ~Actuator() {};
 };
 
 class Calibrator;
 
 class NeuralJoint: public Sensor, public Actuator{
    private:
-   float *signalBuffer = new float[MAX_BUFFER];
+   float *signalBuffer;
    int calibrationOffset, bufferSize;
    static double totalPowerConsumption;
    bool state=0;
@@ -99,13 +106,12 @@ class NeuralJoint: public Sensor, public Actuator{
          bufferSize = 0;
          state = 1;
          calibrationOffset = 0;
-         signalBuffer = NULL;
-
       }
 
       NeuralJoint(float buffer[], int bufferSize){
          this->bufferSize=bufferSize;
-
+         signalBuffer = new float[bufferSize];
+         
          for(int i=0; i < bufferSize; i++){
             this->signalBuffer[i] = buffer[i];
          }
@@ -113,14 +119,17 @@ class NeuralJoint: public Sensor, public Actuator{
          totalPowerConsumption++;
       }
 
-      NeuralJoint(NeuralJoint& obj){
+      NeuralJoint(const NeuralJoint& obj){
          this->bufferSize = obj.bufferSize;
+         this->signalBuffer = new float[this->bufferSize];
 
          for(int i=0; i < obj.bufferSize; i++){
             this->signalBuffer[i] = obj.signalBuffer[i];
          }
          this->state = obj.state;
          totalPowerConsumption++;
+
+         cout<<"Copy Performed Successfully!\n";
       }
 
       NeuralJoint operator +(NeuralJoint& obj){
@@ -130,9 +139,10 @@ class NeuralJoint: public Sensor, public Actuator{
          for(int i=0; i < newBufferSize; i++){
             newBuffer[i] = signalBuffer[i] + obj.signalBuffer[i];
          }
-         return NeuralJoint(newBuffer, newBufferSize);
-
+         NeuralJoint result(newBuffer, newBufferSize);
          delete[] newBuffer;
+         return result;
+         
       }
 
       float operator [](const int& index){
@@ -171,6 +181,14 @@ class Calibrator{
 
 double NeuralJoint::totalPowerConsumption=0;
 
+NeuralJoint demoInitialize(){
+   float Buffer[] ={4.5, 5.3, 9.568, 7.41};
+   int Size =4;
+
+   NeuralJoint result(Buffer , Size);
+   return result;
+}
+
 int main(){
 
    float buffer[MAX_BUFFER];
@@ -178,7 +196,7 @@ int main(){
 
    cout<<"Enter no. of components: "; cin>>number;
 
-   NeuralJoint *components[number];
+   HardwareComponent *components[number];
    
    for(int i=0; i<number; i++){
       cout<<"Enter buffer size: ";
@@ -190,18 +208,16 @@ int main(){
       components[i] = new NeuralJoint(buffer, size);
    }
 
-   components[1]->initialize(); //using intialize
-   components[1]->status();
+   if(number>=2) components[1]->initialize(); //using intialize
+   
+
+   NeuralJoint newComponent = demoInitialize();
+      Calibrator calibrate;
+      calibrate.setCalibrationOffset(4, newComponent);
+      newComponent.status();
 
    NeuralJoint::getPowerConsumption(); // totalPowerConsumption display
 
-   if(number>2){
-      number++;
-      components[number-1] = components[0] ; //copy constructor
-      components[number-1]->status();
-   }
-
-   //float valueAt0 = components[0]; //overloaded []
    for(int i=0; i< number; i++) {
       delete components[i];
    }
