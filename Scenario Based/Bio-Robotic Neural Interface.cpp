@@ -131,6 +131,24 @@ class Calibrator{
 double NeuralJoint::totalPowerConsumption=0;
 
 int main(){
-    
-    return 0;
+
+   float buffer[MAX_BUFFER];
+   int size, number;
+
+   cout<<"Enter no. of components: "; cin>>number;
+
+   HardwareComponent *components[number];
+   
+   for(int i=0; i<number; i++){
+      cout<<"Enter buffer size: ";
+      cin>>size;
+
+      cout<<"Enter buffer constituents: \n";
+      for(int j=0; j<size; j++) cin>>buffer[j];
+
+      components[i] = new NeuralJoint(buffer, size);
+   }
+   
+   
+   return 0;
 }
