@@ -36,6 +36,7 @@ Write a `main()` function that:
 *******************************************************************************/
 
 #include <iostream>
+#define MAX_BUFFER 100
 using namespace std;
 
 class HardwareComponent{
@@ -50,9 +51,53 @@ class Actuator: virtual public HardwareComponent{
 
 };
 
-class NeuralJoint: public Sensor, public Actuator{
+class Calibrator;
 
+class NeuralJoint: public Sensor, public Actuator{
+   private:
+   float *signalBuffer = new float[MAX_BUFFER];
+   int calibrationOffset;
+   static double totalPowerConsumption;
+
+   public:
+   NeuralJoint(float buffer, int bufferSize, int offset){
+
+      totalPowerConsumption++;
+   }
+
+   NeuralJoint operator +(NeuralJoint& obj){
+      //return NeuralJoint(signalBuffer + obj.signalBuffer , calibrationOffset + obj.calibrationOffset);
+   }
+
+   float operator [](const int& index){
+      return signalBuffer[index];
+   }
+
+   const void status() const{
+      cout<<"\n-----STATUS-------\n";
+      cout<<"JOINT STATE: ";
+   }
+
+   static void getPowerConsumption(){
+      cout<<"POWER CONSUMED: "<<totalPowerConsumption<<endl;
+   }
+
+   friend class Calibrator;
+
+   ~NeuralJoint(){
+      delete[] signalBuffer;
+      cout<<"Freed memory by deleting obj ID: "<<endl;
+   }
 };
+
+class Calibrator{
+   public:
+      void modifyCalibrationOffset(const int& newOffset, NeuralJoint& obj){
+         obj.calibrationOffset+= newOffset;
+      }
+};
+
+double NeuralJoint::totalPowerConsumption=0;
 
 int main(){
     
