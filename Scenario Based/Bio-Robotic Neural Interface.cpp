@@ -58,31 +58,41 @@ class NeuralJoint: public Sensor, public Actuator{
    float *signalBuffer = new float[MAX_BUFFER];
    int calibrationOffset, bufferSize;
    static double totalPowerConsumption;
+   bool state=0;
 
    public:
    void initialize() override{
 
    }
 
-   NeuralJoint(float buffer[],int bufferSize, int offset){
+   NeuralJoint(float buffer[], int bufferSize){
       this->bufferSize=bufferSize;
-      calibrationOffset=offset;
 
       for(int i=0; i < bufferSize; i++){
-         signalBuffer[i] = buffer[i];
+         this->signalBuffer[i] = buffer[i];
       }
-
+      this->state = 1;
       totalPowerConsumption++;
    }
 
-   NeuralJoint operator+(NeuralJoint& obj){
+   NeuralJoint(NeuralJoint& obj){
+      this->bufferSize = obj.bufferSize;
+
+      for(int i=0; i < obj.bufferSize; i++){
+         this->signalBuffer[i] = obj.signalBuffer[i];
+      }
+      this->state = obj.state;
+      totalPowerConsumption++;
+   }
+
+   NeuralJoint operator +(NeuralJoint& obj){
       int newBufferSize = bufferSize + obj.bufferSize ;
       float *newBuffer= new float[newBufferSize];
 
       for(int i=0; i < newBufferSize; i++){
          newBuffer[i] = signalBuffer[i] + obj.signalBuffer[i];
       }
-      return NeuralJoint(newBuffer, newBufferSize, calibrationOffset + obj.calibrationOffset);
+      return NeuralJoint(newBuffer, newBufferSize);
 
       delete[] newBuffer;
    }
@@ -93,25 +103,28 @@ class NeuralJoint: public Sensor, public Actuator{
 
    const void status() const{
       cout<<"\n-----STATUS-------\n";
-      cout<<"JOINT STATE: ";
+      if(state) cout<<"JOINT STATE: OFF";
+      else cout<<"JOINT STATE: OFF";
    }
 
    static void getPowerConsumption(){
       cout<<"POWER CONSUMED: "<<totalPowerConsumption<<endl;
    }
 
+   ~NeuralJoint(){
+      state=0;
+      delete[] signalBuffer;
+      cout<<"Freed memory by deleting object! \n";
+   }
+   
    friend class Calibrator;
 
-   ~NeuralJoint(){
-      delete[] signalBuffer;
-      cout<<"Freed memory by deleting obj ID: "<<endl;
-   }
 };
 
 class Calibrator{
    public:
-      void modifyCalibrationOffset(const int& newOffset, NeuralJoint& obj){
-         obj.calibrationOffset+= newOffset;
+      void setCalibrationOffset(const int& offset, NeuralJoint& obj){
+         obj.calibrationOffset= offset;
       }
 };
 
