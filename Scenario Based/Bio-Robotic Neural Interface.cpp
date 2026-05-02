@@ -111,6 +111,7 @@ class NeuralJoint: public Sensor, public Actuator{
       NeuralJoint(float buffer[], int bufferSize){
          this->bufferSize=bufferSize;
          signalBuffer = new float[bufferSize];
+         calibrationOffset=0;
          
          for(int i=0; i < bufferSize; i++){
             this->signalBuffer[i] = buffer[i];
@@ -122,6 +123,7 @@ class NeuralJoint: public Sensor, public Actuator{
       NeuralJoint(const NeuralJoint& obj){
          this->bufferSize = obj.bufferSize;
          this->signalBuffer = new float[this->bufferSize];
+         this->calibrationOffset = obj.calibrationOffset;
 
          for(int i=0; i < obj.bufferSize; i++){
             this->signalBuffer[i] = obj.signalBuffer[i];
@@ -133,7 +135,7 @@ class NeuralJoint: public Sensor, public Actuator{
       }
 
       NeuralJoint operator +(NeuralJoint& obj){
-         int newBufferSize = bufferSize + obj.bufferSize ;
+         int newBufferSize = max(bufferSize, obj.bufferSize) ;
          float *newBuffer= new float[newBufferSize];
 
          for(int i=0; i < newBufferSize; i++){
@@ -149,6 +151,10 @@ class NeuralJoint: public Sensor, public Actuator{
          return signalBuffer[index];
       }
 
+      float& operator [](int index){
+         return signalBuffer[index];
+      }
+
       const void status() const{
          cout<<"\n-----STATUS-------\n";
          cout<<"BUFFER SIZE: "<<bufferSize;
@@ -160,6 +166,12 @@ class NeuralJoint: public Sensor, public Actuator{
 
       inline static void getPowerConsumption(){
          cout<<"POWER CONSUMED: "<<totalPowerConsumption<<" units."<<endl;
+      }
+
+      void viewBuffer(){
+         for(int i=0; i < bufferSize; i++){
+            cout<<signalBuffer[i] <<" ";
+         }
       }
 
       ~NeuralJoint(){
@@ -211,10 +223,14 @@ int main(){
    if(number>=2) components[1]->initialize(); //using intialize
    
 
-   NeuralJoint newComponent = demoInitialize();
-      Calibrator calibrate;
-      calibrate.setCalibrationOffset(4, newComponent);
-      newComponent.status();
+   NeuralJoint newComponent1 = demoInitialize();
+   NeuralJoint newComponent2 = demoInitialize();
+   Calibrator calibrate;
+   calibrate.setCalibrationOffset(4, newComponent1);
+   newComponent1.status();
+   NeuralJoint addComponent = newComponent1 + newComponent2;
+   addComponent.status();
+   addComponent.viewBuffer();
 
    NeuralJoint::getPowerConsumption(); // totalPowerConsumption display
 
