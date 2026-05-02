@@ -56,17 +56,35 @@ class Calibrator;
 class NeuralJoint: public Sensor, public Actuator{
    private:
    float *signalBuffer = new float[MAX_BUFFER];
-   int calibrationOffset;
+   int calibrationOffset, bufferSize;
    static double totalPowerConsumption;
 
    public:
-   NeuralJoint(float buffer, int bufferSize, int offset){
+   void initialize() override{
+
+   }
+
+   NeuralJoint(float buffer[],int bufferSize, int offset){
+      this->bufferSize=bufferSize;
+      calibrationOffset=offset;
+
+      for(int i=0; i < bufferSize; i++){
+         signalBuffer[i] = buffer[i];
+      }
 
       totalPowerConsumption++;
    }
 
-   NeuralJoint operator +(NeuralJoint& obj){
-      //return NeuralJoint(signalBuffer + obj.signalBuffer , calibrationOffset + obj.calibrationOffset);
+   NeuralJoint operator+(NeuralJoint& obj){
+      int newBufferSize = bufferSize + obj.bufferSize ;
+      float *newBuffer= new float[newBufferSize];
+
+      for(int i=0; i < newBufferSize; i++){
+         newBuffer[i] = signalBuffer[i] + obj.signalBuffer[i];
+      }
+      return NeuralJoint(newBuffer, newBufferSize, calibrationOffset + obj.calibrationOffset);
+
+      delete[] newBuffer;
    }
 
    float operator [](const int& index){
