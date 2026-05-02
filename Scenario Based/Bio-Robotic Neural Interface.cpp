@@ -42,7 +42,7 @@ using namespace std;
 class HardwareComponent{
    public:
       virtual void initialize()=0;
-      virtual ~HardwareComponent() {}
+      virtual ~HardwareComponent() { cout<<"Destroyed Component!\n"; }
 };
 
 class Sensor : virtual public HardwareComponent{
@@ -52,11 +52,11 @@ class Sensor : virtual public HardwareComponent{
 
    public:
 
-      void setSamplingRate(const int rate){
+      inline void setSamplingRate(const int rate){
          samplingRate = rate;
       }
 
-      void initialize() override{
+      inline void initialize() override{
          sensitivity = 0.00;
          samplingRate = 5;
       }
@@ -70,15 +70,15 @@ class Actuator: virtual public HardwareComponent{
 
    public:
 
-      void rotate(int angle){
+      inline void rotate(int angle){
          currentAngle += angle;
       }
 
-      void applyResistance(float force){
+      inline void applyResistance(float force){
          maxTorque += force;
       }
       
-      void initialize() override{
+      inline void initialize() override{
          currentAngle = 0;
          isEngaged = 1;
          maxTorque = 0.00;
@@ -95,7 +95,7 @@ class NeuralJoint: public Sensor, public Actuator{
    bool state=0;
 
    public:
-      void initialize() override{
+      inline void initialize() override{
          bufferSize = 0;
          state = 1;
          calibrationOffset = 0;
@@ -145,7 +145,7 @@ class NeuralJoint: public Sensor, public Actuator{
          else cout<<"JOINT STATE: OFF";
       }
 
-      static void getPowerConsumption(){
+      inline static void getPowerConsumption(){
          cout<<"POWER CONSUMED: "<<totalPowerConsumption<<endl;
       }
 
@@ -161,7 +161,7 @@ class NeuralJoint: public Sensor, public Actuator{
 
 class Calibrator{
    public:
-      void setCalibrationOffset(const int& offset, NeuralJoint& obj){
+      inline void setCalibrationOffset(const int& offset, NeuralJoint& obj){
          obj.calibrationOffset= offset;
       }
 };
@@ -187,7 +187,13 @@ int main(){
       components[i] = new NeuralJoint(buffer, size);
    }
 
-   components[1]->initialize();
+   components[1]->initialize(); //using intialize
+
+   if(number>2){
+      components[number-1] = components[0] ; //copy constructor
+   }
+   
+   float valueAt0 = components[0]; //overloaded []
    
    return 0;
 }
