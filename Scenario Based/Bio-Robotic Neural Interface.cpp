@@ -47,21 +47,18 @@ class HardwareComponent{
 
 class Sensor : virtual public HardwareComponent{
    private:
-      float sensitivity, *rawDataLog;
+      float sensitivity;
       int samplingRate;
 
    public:
 
-      float getSignalValue(){
-
-      }
-
-      void calibrate(){
-
+      void setSamplingRate(const int rate){
+         samplingRate = rate;
       }
 
       void initialize() override{
-
+         sensitivity = 0.00;
+         samplingRate = 5;
       }
 };
 
@@ -69,20 +66,22 @@ class Actuator: virtual public HardwareComponent{
    private:
       float maxTorque;
       int currentAngle;
-      bool isEngaged;
+      bool isEngaged=0;
 
    public:
 
       void rotate(int angle){
-
+         currentAngle += angle;
       }
 
       void applyResistance(float force){
-
+         maxTorque += force;
       }
       
       void initialize() override{
-
+         currentAngle = 0;
+         isEngaged = 1;
+         maxTorque = 0.00;
       }
 };
 
@@ -96,63 +95,67 @@ class NeuralJoint: public Sensor, public Actuator{
    bool state=0;
 
    public:
-   void initialize() override{
+      void initialize() override{
+         bufferSize = 0;
+         state = 1;
+         calibrationOffset = 0;
+         signalBuffer = NULL;
 
-   }
-
-   NeuralJoint(float buffer[], int bufferSize){
-      this->bufferSize=bufferSize;
-
-      for(int i=0; i < bufferSize; i++){
-         this->signalBuffer[i] = buffer[i];
       }
-      this->state = 1;
-      totalPowerConsumption++;
-   }
 
-   NeuralJoint(NeuralJoint& obj){
-      this->bufferSize = obj.bufferSize;
+      NeuralJoint(float buffer[], int bufferSize){
+         this->bufferSize=bufferSize;
 
-      for(int i=0; i < obj.bufferSize; i++){
-         this->signalBuffer[i] = obj.signalBuffer[i];
+         for(int i=0; i < bufferSize; i++){
+            this->signalBuffer[i] = buffer[i];
+         }
+         this->state = 1;
+         totalPowerConsumption++;
       }
-      this->state = obj.state;
-      totalPowerConsumption++;
-   }
 
-   NeuralJoint operator +(NeuralJoint& obj){
-      int newBufferSize = bufferSize + obj.bufferSize ;
-      float *newBuffer= new float[newBufferSize];
+      NeuralJoint(NeuralJoint& obj){
+         this->bufferSize = obj.bufferSize;
 
-      for(int i=0; i < newBufferSize; i++){
-         newBuffer[i] = signalBuffer[i] + obj.signalBuffer[i];
+         for(int i=0; i < obj.bufferSize; i++){
+            this->signalBuffer[i] = obj.signalBuffer[i];
+         }
+         this->state = obj.state;
+         totalPowerConsumption++;
       }
-      return NeuralJoint(newBuffer, newBufferSize);
 
-      delete[] newBuffer;
-   }
+      NeuralJoint operator +(NeuralJoint& obj){
+         int newBufferSize = bufferSize + obj.bufferSize ;
+         float *newBuffer= new float[newBufferSize];
 
-   float operator [](const int& index){
-      return signalBuffer[index];
-   }
+         for(int i=0; i < newBufferSize; i++){
+            newBuffer[i] = signalBuffer[i] + obj.signalBuffer[i];
+         }
+         return NeuralJoint(newBuffer, newBufferSize);
 
-   const void status() const{
-      cout<<"\n-----STATUS-------\n";
-      if(state) cout<<"JOINT STATE: OFF";
-      else cout<<"JOINT STATE: OFF";
-   }
+         delete[] newBuffer;
+      }
 
-   static void getPowerConsumption(){
-      cout<<"POWER CONSUMED: "<<totalPowerConsumption<<endl;
-   }
+      float operator [](const int& index){
+         return signalBuffer[index];
+      }
 
-   ~NeuralJoint(){
-      state=0;
-      delete[] signalBuffer;
-      cout<<"Freed memory by deleting object! \n";
-   }
+      const void status() const{
+         cout<<"\n-----STATUS-------\n";
+         if(state) cout<<"JOINT STATE: OFF";
+         else cout<<"JOINT STATE: OFF";
+      }
+
+      static void getPowerConsumption(){
+         cout<<"POWER CONSUMED: "<<totalPowerConsumption<<endl;
+      }
+
+      ~NeuralJoint(){
+         state=0;
+         delete[] signalBuffer;
+         cout<<"Freed memory by deleting object! \n";
+      }
    
-   friend class Calibrator;
+      friend class Calibrator;
 
 };
 
