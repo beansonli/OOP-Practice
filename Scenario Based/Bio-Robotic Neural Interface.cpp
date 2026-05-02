@@ -151,10 +151,6 @@ class NeuralJoint: public Sensor, public Actuator{
          return signalBuffer[index];
       }
 
-      float& operator [](int index){
-         return signalBuffer[index];
-      }
-
       const void status() const{
          cout<<"\n-----STATUS-------\n";
          cout<<"BUFFER SIZE: "<<bufferSize;
@@ -165,7 +161,7 @@ class NeuralJoint: public Sensor, public Actuator{
       }
 
       inline static void getPowerConsumption(){
-         cout<<"POWER CONSUMED: "<<totalPowerConsumption<<" units."<<endl;
+         cout<<"\nPOWER CONSUMED: "<<totalPowerConsumption<<" units."<<endl;
       }
 
       void viewBuffer(){
@@ -220,23 +216,27 @@ int main(){
       components[i] = new NeuralJoint(buffer, size);
    }
 
-   if(number>=2) components[1]->initialize(); //using intialize
-   
+   if(number>=2) components[1]->initialize();            //using intialize
+
 
    NeuralJoint newComponent1 = demoInitialize();
-   NeuralJoint newComponent2 = demoInitialize();
+   NeuralJoint newComponent2 = newComponent1;            //copy constructor implementation
    Calibrator calibrate;
-   calibrate.setCalibrationOffset(4, newComponent1);
+   calibrate.setCalibrationOffset(4, newComponent1);     //modifying calbriationOffset 
    newComponent1.status();
-   NeuralJoint addComponent = newComponent1 + newComponent2;
+   NeuralJoint addComponent = newComponent1 + newComponent2; // verified operator +
    addComponent.status();
    addComponent.viewBuffer();
 
-   NeuralJoint::getPowerConsumption(); // totalPowerConsumption display
+   float value = addComponent[2];                     // verified operator []
+   cout<<"\n"<<value<<endl;
+
+   NeuralJoint::getPowerConsumption();                // totalPowerConsumption display
 
    for(int i=0; i< number; i++) {
       delete components[i];
    }
+
     
 
    return 0;
