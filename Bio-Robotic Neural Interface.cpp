@@ -38,6 +38,22 @@ Write a `main()` function that:
 #include <iostream>
 using namespace std;
 
+class HardwareComponent{
+   virtual void initialize()=0;
+};
+
+class Sensor : virtual public HardwareComponent{
+
+};
+
+class Actuator: virtual public HardwareComponent{
+
+};
+
+class NeuralJoint: public Sensor, public Actuator{
+
+};
+
 int main(){
     
     return 0;
