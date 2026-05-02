@@ -141,18 +141,21 @@ class NeuralJoint: public Sensor, public Actuator{
 
       const void status() const{
          cout<<"\n-----STATUS-------\n";
-         if(state) cout<<"JOINT STATE: OFF";
-         else cout<<"JOINT STATE: OFF";
+         cout<<"BUFFER SIZE: "<<bufferSize;
+         cout<<"\nCALIBRATION OFFSET: "<<calibrationOffset;
+
+         if(state) cout<<"\nJOINT STATE: ON\n";
+         else cout<<"\nJOINT STATE: OFF\n";
       }
 
       inline static void getPowerConsumption(){
-         cout<<"POWER CONSUMED: "<<totalPowerConsumption<<endl;
+         cout<<"POWER CONSUMED: "<<totalPowerConsumption<<" units."<<endl;
       }
 
       ~NeuralJoint(){
          state=0;
          delete[] signalBuffer;
-         cout<<"Freed memory by deleting object! \n";
+         cout<<"\nFreed memory by deleting object! \n";
       }
    
       friend class Calibrator;
@@ -175,7 +178,7 @@ int main(){
 
    cout<<"Enter no. of components: "; cin>>number;
 
-   HardwareComponent *components[number];
+   NeuralJoint *components[number];
    
    for(int i=0; i<number; i++){
       cout<<"Enter buffer size: ";
@@ -188,12 +191,21 @@ int main(){
    }
 
    components[1]->initialize(); //using intialize
+   components[1]->status();
+
+   NeuralJoint::getPowerConsumption(); // totalPowerConsumption display
 
    if(number>2){
+      number++;
       components[number-1] = components[0] ; //copy constructor
+      components[number-1]->status();
    }
-   
-   float valueAt0 = components[0]; //overloaded []
-   
+
+   //float valueAt0 = components[0]; //overloaded []
+   for(int i=0; i< number; i++) {
+      delete components[i];
+   }
+    
+
    return 0;
 }
