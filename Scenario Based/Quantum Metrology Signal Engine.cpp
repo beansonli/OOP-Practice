@@ -33,6 +33,50 @@ Write a program that:
 #include <iostream>
 using namespace std;
 
+namespace MetrologyCore{
+
+   template<typename T>
+   void applyGain(T value){
+
+   }
+
+   void applyGain(char* value){
+
+   }
+
+   template<typename T, int BufferSize>
+   class DataStream{
+      private:
+         T data;
+         int bufferSize;
+
+      public:
+         DataStream(T data, int buffer){
+            this->data = data;
+            this->bufferSize = buffer;
+         }
+
+         DataStream(const DataStream& obj){
+            this->data = obj.data;
+            this->bufferSize = obj.bufferSize;
+         }
+
+         void operator () (T value){
+            applyGain(value);
+         }
+
+         //friend void applyGain<T>;
+         friend ostream& operator << ( ostream&, const DataStream& ); 
+   };
+
+   ostream& operator << ( ostream& stream, const DataStream& obj){
+      stream << obj.data;
+      return stream;
+   }
+
+
+}
+
 int main()
 {
 
