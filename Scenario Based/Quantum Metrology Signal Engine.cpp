@@ -35,6 +35,13 @@ using namespace std;
 
 namespace MetrologyCore{
 
+   template<typename T, int BufferSize>
+   class DataStream;
+
+   template <typename T, int size>
+   ostream& operator << (ostream& stream, const DataStream< T, size>& obj);
+
+
    template<typename T>
    inline void applyGain(T& value){
       value+=3.5;
@@ -53,7 +60,7 @@ namespace MetrologyCore{
          T data[BufferSize];
 
       public:
-         DataStream(T data[]=0){
+         DataStream(T data[]){
             for(int i=0; i<BufferSize ; i++)
                this->data[i] = data[i];
          }
@@ -64,7 +71,8 @@ namespace MetrologyCore{
          }
 
          inline void operator () (void) {
-            applyGain(*this);
+            for(int i=0 ; i< BufferSize; i++)
+               applyGain(this->data[i]);
          }
 
          operator double(){
@@ -79,11 +87,17 @@ namespace MetrologyCore{
                data[i]+= value;
          }
 
-         ostream& operator << ( ostream& stream){
-            stream << this->data;
-            return stream;
-         }
+         friend ostream& operator << <T, BufferSize>(ostream&, const DataStream&);
    };
+
+   template <typename T, int size>
+   ostream& operator << (ostream& stream, const DataStream< T, size>& obj){
+
+      for (int i=0; i <size ; i++)
+         stream << obj.data[i];
+
+      return stream;
+   }
 
 }
 
@@ -100,7 +114,6 @@ int main()
    double avg = mystream;
    cout<<"Avg of stream values: "<<avg<<endl;
 
-   applyGain(Stringstream);
    applyGain(mystream);
    applyGain(doublestream);
 
