@@ -94,7 +94,7 @@ namespace MetrologyCore{
    ostream& operator << (ostream& stream, const DataStream< T, size>& obj){
 
       for (int i=0; i <size ; i++)
-         stream << obj.data[i];
+         stream << obj.data[i]<<" ";
 
       return stream;
    }
@@ -114,10 +114,8 @@ int main()
    double avg = mystream;
    cout<<"Avg of stream values: "<<avg<<endl;
 
-   applyGain(mystream);
    applyGain(doublestream);
 
-   cout<<mystream<<endl;
    cout<<doublestream<<endl;
 
     return 0;
