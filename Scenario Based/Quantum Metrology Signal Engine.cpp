@@ -47,25 +47,29 @@ namespace MetrologyCore{
    template<typename T, int BufferSize>
    class DataStream{
       private:
-         T data;
-         int bufferSize;
+         T data[BufferSize];
 
       public:
-         DataStream(T data, int buffer){
-            this->data = data;
-            this->bufferSize = buffer;
+         DataStream(T data[]){
+            for(int i=0; i<BufferSize ; i++)
+               this->data[i] = data[i];
          }
 
          DataStream(const DataStream& obj){
-            this->data = obj.data;
-            this->bufferSize = obj.bufferSize;
+            for(int i=0; i<BufferSize ; i++)
+               this->data[i] = obj.data[i];
          }
 
          void operator () (T value){
-            applyGain(value);
          }
 
-         //friend void applyGain<T>;
+         operator double(){
+            double sum=0;
+            for(int i=0; i<BufferSize ; i++)
+               sum += data[i];
+            return double(sum)/double(BufferSize);
+         }
+
          friend ostream& operator << ( ostream&, const DataStream& ); 
    };
 
