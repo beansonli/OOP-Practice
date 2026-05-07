@@ -36,6 +36,9 @@ Write a program that:
 ************************************************************/
 
 #include <iostream>
+#include <vector>
+#include <cmath>
+
 using namespace std;
 
 class Robot{
@@ -54,17 +57,6 @@ class Robot{
          this->batteryCapacity += incrementValue;
       }
 
-      Robot* setSpeed(double speed = 0){
-         this->speed = speed;
-
-         return this;
-      }
-
-      void setTarget(double x=0, double y=0){
-         this->Xcoord =x;
-         this->Ycoord = y;
-      }
-
    public:
       // constructor overloading for varying battery capacities
       Robot(float capacity){
@@ -79,29 +71,45 @@ class Robot{
          this->batteryCapacity = float(capacity);
       }
 
-      Robot(double capacity){
-         count++;
-         this->serialNo = count;
-         this->batteryCapacity = (float)capacity;
-      }
-
       Robot() = delete;
 
-	  friend void emergencyBypass(Robot&);
-      virtual void identifyType()=0;
-      virtual void calculatePath();
+	   friend void emergencyBypass(Robot&);
 
-	  bool operator ==(const Robot& r){
-		return 
-	  }
+      virtual void identifyType()=0;
+
+      virtual void calculatePath(float , float){
+         cout << ">> Generic path calculation." << endl;
+      }
+
+      Robot* setSpeed(double speed = 0){
+         this->speed = speed;
+
+         return this;
+      }
+
+      void setTarget(double x=0, double y=0){
+         this->Xcoord =x;
+         this->Ycoord = y;
+      }
+
+      bool operator ==(const Robot& r){
+         if(this->batteryCapacity == r.batteryCapacity)
+	         return true;
+         else
+            return false;
+	   }
+
+      Robot* operator > (Robot* r){
+         return (this->batteryCapacity > r->batteryCapacity) ? this : r;
+      }
 
       virtual void displayInfo(){
-         cout<<"Serial No.: "<<serialNo;
-         cout<<"\nBattery Capacity: "<<this->batteryCapacity<<endl;
+         cout<<"> Serial No.: "<<serialNo<<endl;
+         cout<<"> Battery Capacity: "<<this->batteryCapacity<<endl;
       }
 
       virtual ~Robot(){
-         cout<<"\nRobot removed succeessfully!\n";
+         cout<<"\n>> Robot removed succeessfully!\n";
       }
 
 
@@ -110,13 +118,16 @@ int Robot::count=0;
 
 void emergencyBypass(Robot& r){
 	cout<<"\n****Implementing Emergency measures!****\n";
-	cout<<"Shuting down Robot!\n";
+	cout<<">> Shuting down Robot!\n";
 	r.batteryCapacity =0.0;
 	r.setSpeed(0.0);
 
 }
 
 class AGV : public Robot{
+   private:
+      float wheelFriction; 
+      int loadWeight;
 
    public:
 
@@ -128,22 +139,25 @@ class AGV : public Robot{
 
 
       void identifyType() override{
-            cout<<"\nRobot Type: AGV\n";
+            cout<<"\n>> Robot Type: AGV\n";
       }
 
-      void calculatePath() override{
-
+      void calculatePath(float targetX, float targetY) override{
+         double D = abs(targetX - Xcoord) + abs(targetY - Ycoord);
+         cout<<"> Calculated path distance: "<<D<<endl;
       }
       void displayInfo() override{
          identifyType();
       }
 
       ~AGV(){
-         cout<<"\nDestroying AGV with Serial Number: "<<serialNo<<endl;
+         cout<<"\n>> Destroying AGV with Serial Number: "<<serialNo<<endl;
       }
 };
 
 class UAV : public Robot{
+   private:
+      float altitude, rotorSpeed;
 
    public:
 
@@ -151,26 +165,32 @@ class UAV : public Robot{
          count++;
          this->serialNo = count;
          this->batteryCapacity = capacity;
+         Xcoord = Ycoord = 0;
       }
 
       void identifyType() override{
-         cout<<"\nRobot Type: UAV\n";
+         cout<<"\n>> Robot Type: UAV\n";
       }
 
-      void calculatePath() override{
-
+      void calculatePath(float targetX, float targetY) override{
+         double altitude = sqrt(pow((targetX - Xcoord), 2) + pow((targetY - Ycoord), 2) );
+         cout<<"> Calculated path distance: "<<altitude<<endl;
       }
 
       void displayInfo() override{
          identifyType();
+         cout<<"> Rotor Speed: "<<rotorSpeed<<endl;
+         cout<<"> Altitude reached: "<<altitude<<endl;
       }
 
       ~UAV(){
-         cout<<"\nDestroying UAV with Serial Number: "<<serialNo<<endl;
+         cout<<"\n>> Destroying UAV with Serial Number: "<<serialNo<<endl;
       }
 };
 
 class InternalCircuitry : protected Robot{
+   private:
+      float motorEfficiency, batteryVoltage;
 
    public:
       InternalCircuitry(float battery): Robot(battery){
@@ -180,27 +200,51 @@ class InternalCircuitry : protected Robot{
       }
 
       void identifyType() override{
-         cout<<"\nRobot Type: Internal Circuitry (IC)\n";
+         cout<<"\n>> Robot Type: Internal Circuitry (IC)\n";
       }
 
       void displayInfo() override{
          identifyType();
+         cout<<"Battery voltage: "<<batteryVoltage<<endl;
+         cout<<"Motor Efficiency: "<<motorEfficiency<<endl;
       }
 
       ~InternalCircuitry(){
-         cout<<"Destroying IC with Serial Number: "<<serialNo<<endl;
+         cout<<"\n>> Destroying IC with Serial Number: "<<serialNo<<endl;
       }
 };
 
 int main(){
    
    Robot* myRobot = new UAV(54);
-   //Robot* circuitry = new InternalCircuitry();
+   vector<Robot*> robots(6);
+   robots.at(0)= new AGV(90.23);
+   robots.at(1) = new AGV(100.00);
+   robots[2] = new UAV(18.210564);
+   robots[3] = new UAV(24);
+
+   robots.at(4)  = robots.at(2) > robots.at(3);
+
+   bool check = robots[2] == robots[3];
+      if(check) cout<<"\n > Same Robots identified!\n";
+      else cout<<"\n  > NO same robots identified!\n";
+
+
+   double testX =40.12;
+   double testY = 90.1456;
+
+   for (int i=0; i<robots.size() ;i++)
+      robots[i]->calculatePath(testX , testY); //testing coordinates
 
    myRobot->setSpeed(10)->setTarget(45, 12);
-
    myRobot->displayInfo();
-   
+
+   for (int i=0; i<robots.size() ;i++){
+      robots[i]->displayInfo();
+      delete robots[i];
+   }
+
    delete myRobot;
+
    return 0;
 }
