@@ -38,7 +38,157 @@ Write a program that:
 #include <iostream>
 using namespace std;
 
-int main(){
+class Robot{
+   protected:
+      static int count;
+      int serialNo;
+      float batteryCapacity;
+      double Xcoord=0 , Ycoord=0, speed=0;
 
-return 0;
+   public:
+      void control(){
+         cout<<"Control activated!\n";
+      }
+
+      void increaseCapacity(float incrementValue){
+         this->batteryCapacity += incrementValue;
+      }
+
+      Robot* setSpeed(double speed = 0){
+         this->speed = speed;
+
+         return this;
+      }
+
+      void setTarget(double x=0, double y=0){
+         this->Xcoord =x;
+         this->Ycoord = y;
+      }
+
+   public:
+      // constructor overloading for varying battery capacities
+      Robot(float capacity){
+         count++;
+         this->serialNo = count;
+         this->batteryCapacity = (float)capacity;
+      }
+
+      Robot(int capacity){
+         count++;
+         this->serialNo = count;
+         this->batteryCapacity = float(capacity);
+      }
+
+      Robot(double capacity){
+         count++;
+         this->serialNo = count;
+         this->batteryCapacity = (float)capacity;
+      }
+
+      Robot() = delete;
+
+      virtual void identifyType()=0;
+
+      virtual void calculatePath();
+
+      virtual void displayInfo(){
+         cout<<"Serial No.: "<<serialNo;
+         cout<<"\nBattery Capacity: "<<this->batteryCapacity<<endl;
+      }
+
+      virtual ~Robot(){
+         cout<<"\nRobot removed succeessfully!\n";
+      }
+   
+
+};
+int Robot::count=0;
+
+class AGV : public Robot{
+
+   public:
+
+      AGV(float capacity) : Robot(capacity){
+         count++;
+         this->serialNo = count;
+         this->batteryCapacity = capacity;
+      }
+
+
+      void identifyType() override{
+            cout<<"\nRobot Type: AGV\n";
+      }
+
+      void calculatePath() override{
+
+      }
+      void displayInfo() override{
+         identifyType();
+      }
+
+      ~AGV(){
+         cout<<"\nDestroying AGV with Serial Number: "<<serialNo<<endl;
+      }
+};
+
+class UAV : public Robot{
+
+   public:
+
+      UAV(float capacity) : Robot(capacity){
+         count++;
+         this->serialNo = count;
+         this->batteryCapacity = capacity;
+      }
+
+      void identifyType() override{
+         cout<<"\nRobot Type: UAV\n";
+      }
+
+      void calculatePath() override{
+
+      }
+
+      void displayInfo() override{
+         identifyType();
+      }
+
+      ~UAV(){
+         cout<<"\nDestroying UAV with Serial Number: "<<serialNo<<endl;
+      }
+};
+
+class InternalCircuitry : protected Robot{
+
+   public:
+      InternalCircuitry(float battery): Robot(battery){
+         count++;
+         this->serialNo =count;
+         this->batteryCapacity = battery;
+      }
+
+      void identifyType() override{
+         cout<<"\nRobot Type: Internal Circuitry (IC)\n";
+      }
+
+      void displayInfo() override{
+         identifyType();
+      }
+
+      ~InternalCircuitry(){
+         cout<<"Destroying IC with Serial Number: "<<serialNo<<endl;
+      }
+};
+
+int main(){
+   
+   Robot* myRobot = new UAV(54);
+   //Robot* circuitry = new InternalCircuitry();
+
+   myRobot->setSpeed(10)->setTarget(45, 12);
+
+   myRobot->displayInfo();
+   
+   delete myRobot;
+   return 0;
 }
