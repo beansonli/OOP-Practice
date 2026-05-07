@@ -36,12 +36,14 @@ using namespace std;
 namespace MetrologyCore{
 
    template<typename T>
-   void applyGain(T value){
-
+   inline void applyGain(T& value){
+      value+=3;
+      cout<<"Applied gain of +3 to value! \n";
    }
 
-   void applyGain(char* value){
-
+   inline void applyGain(char* value){
+      cout<<"Cannot apply gain to string objects! \n";
+      return;
    }
 
    template<typename T, int BufferSize>
@@ -50,7 +52,7 @@ namespace MetrologyCore{
          T data[BufferSize];
 
       public:
-         DataStream(T data[]){
+         DataStream(T data[]=0){
             for(int i=0; i<BufferSize ; i++)
                this->data[i] = data[i];
          }
@@ -60,8 +62,8 @@ namespace MetrologyCore{
                this->data[i] = obj.data[i];
          }
 
-         void operator () (T value) {
-            applyGain(value);
+         inline void operator () (void) {
+            applyGain(this);
          }
 
          operator double(){
@@ -81,6 +83,20 @@ namespace MetrologyCore{
 
 int main()
 {
+   double data[]={10, 50 ,4.21, 6.789, 78.1, 64.12, 241,8.45 ,1.000};
+   char* stream[] = {"TESTING"};
+   MetrologyCore::DataStream<double, 10>mystream(data); // +1 size for the termination of buffer;
+   MetrologyCore::DataStream<char*, 9>Stringstream(stream);
+   MetrologyCore::DataStream<double, 10>doublestream(mystream);
+
+   mystream();
+
+   double avg = mystream;
+   cout<<"Avg of stream values: "<<avg<<endl;
+
+   applyGain(Stringstream);
+   applyGain(mystream);
+   applyGain(doublestream);
 
     return 0;
 }
