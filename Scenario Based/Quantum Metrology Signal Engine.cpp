@@ -89,7 +89,7 @@ namespace MetrologyCore{
 
 int main()
 {
-   double data[]={10, 50, 4.21, 6.789, 78.1, 64.12, 241, 8.45,1.000};
+   double data[]={10, 50 ,4.21, 6.789, 78.1, 64.12, 241,8.45 ,1.000};
    char* stream[] = {"TESTING"};
    MetrologyCore::DataStream<double, 10>mystream(data); // +1 size for the termination of buffer;
    MetrologyCore::DataStream<char*, 9>Stringstream(stream);
@@ -103,6 +103,9 @@ int main()
    applyGain(Stringstream);
    applyGain(mystream);
    applyGain(doublestream);
+
+   cout<<mystream<<endl;
+   cout<<doublestream<<endl;
 
     return 0;
 }
