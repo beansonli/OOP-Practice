@@ -37,14 +37,15 @@ namespace MetrologyCore{
 
    template<typename T>
    inline void applyGain(T& value){
-      value+=3;
-      cout<<"Applied gain of +3 to value! \n";
+      value+=3.5;
+      cout<<"Applied gain of +3.5 to value! \n";
    }
 
    inline void applyGain(char* value){
       cout<<"Cannot apply gain to string objects! \n";
       return;
    }
+   
 
    template<typename T, int BufferSize>
    class DataStream{
@@ -63,7 +64,7 @@ namespace MetrologyCore{
          }
 
          inline void operator () (void) {
-            applyGain(this);
+            applyGain(*this);
          }
 
          operator double(){
@@ -71,6 +72,11 @@ namespace MetrologyCore{
             for(int i=0; i<BufferSize ; i++)
                sum += data[i];
             return double(sum)/double(BufferSize);
+         }
+
+          void operator += (T value){
+            for (int i=0 ; i< BufferSize; i++)
+               data[i]+= value;
          }
 
          ostream& operator << ( ostream& stream){
@@ -83,7 +89,7 @@ namespace MetrologyCore{
 
 int main()
 {
-   double data[]={10, 50 ,4.21, 6.789, 78.1, 64.12, 241,8.45 ,1.000};
+   double data[]={10, 50, 4.21, 6.789, 78.1, 64.12, 241, 8.45,1.000};
    char* stream[] = {"TESTING"};
    MetrologyCore::DataStream<double, 10>mystream(data); // +1 size for the termination of buffer;
    MetrologyCore::DataStream<char*, 9>Stringstream(stream);
