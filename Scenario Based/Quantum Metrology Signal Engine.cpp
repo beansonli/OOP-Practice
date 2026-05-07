@@ -60,7 +60,8 @@ namespace MetrologyCore{
                this->data[i] = obj.data[i];
          }
 
-         void operator () (T value){
+         void operator () (T value) {
+            applyGain(value);
          }
 
          operator double(){
@@ -70,14 +71,11 @@ namespace MetrologyCore{
             return double(sum)/double(BufferSize);
          }
 
-         friend ostream& operator << ( ostream&, const DataStream& ); 
+         ostream& operator << ( ostream& stream){
+            stream << this->data;
+            return stream;
+         }
    };
-
-   ostream& operator << ( ostream& stream, const DataStream& obj){
-      stream << obj.data;
-      return stream;
-   }
-
 
 }
 
