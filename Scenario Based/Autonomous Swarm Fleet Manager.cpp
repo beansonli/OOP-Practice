@@ -1,4 +1,4 @@
-/***********************************************************
+/************************************************************
 # CHALLENGE 03: The Autonomous Swarm Fleet Manager
 
 ## Scenario
@@ -45,7 +45,7 @@ class Robot{
       float batteryCapacity;
       double Xcoord=0 , Ycoord=0, speed=0;
 
-   public:
+   protected:
       void control(){
          cout<<"Control activated!\n";
       }
@@ -87,9 +87,13 @@ class Robot{
 
       Robot() = delete;
 
+	  friend void emergencyBypass(Robot&);
       virtual void identifyType()=0;
-
       virtual void calculatePath();
+
+	  bool operator ==(const Robot& r){
+		return 
+	  }
 
       virtual void displayInfo(){
          cout<<"Serial No.: "<<serialNo;
@@ -99,10 +103,18 @@ class Robot{
       virtual ~Robot(){
          cout<<"\nRobot removed succeessfully!\n";
       }
-   
+
 
 };
 int Robot::count=0;
+
+void emergencyBypass(Robot& r){
+	cout<<"\n****Implementing Emergency measures!****\n";
+	cout<<"Shuting down Robot!\n";
+	r.batteryCapacity =0.0;
+	r.setSpeed(0.0);
+
+}
 
 class AGV : public Robot{
 
