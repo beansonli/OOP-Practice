@@ -99,8 +99,8 @@ class Robot{
             return false;
 	   }
 
-      Robot* operator > (Robot* r){
-         return (this->batteryCapacity > r->batteryCapacity) ? this : r;
+      bool operator > (const Robot& r) const {
+         return this->batteryCapacity > r.batteryCapacity;
       }
 
       virtual void displayInfo(){
@@ -132,8 +132,6 @@ class AGV : public Robot{
    public:
 
       AGV(float capacity) : Robot(capacity){
-         count++;
-         this->serialNo = count;
          this->batteryCapacity = capacity;
       }
 
@@ -162,8 +160,6 @@ class UAV : public Robot{
    public:
 
       UAV(float capacity) : Robot(capacity){
-         count++;
-         this->serialNo = count;
          this->batteryCapacity = capacity;
          Xcoord = Ycoord = 0;
       }
@@ -193,10 +189,10 @@ class InternalCircuitry : protected Robot{
       float motorEfficiency, batteryVoltage;
 
    public:
-      InternalCircuitry(float battery): Robot(battery){
-         count++;
-         this->serialNo =count;
+      InternalCircuitry(float battery, float efficency, float voltage): Robot(battery){
          this->batteryCapacity = battery;
+         this->motorEfficiency = efficency;
+         this->batteryVoltage = voltage;
       }
 
       void identifyType() override{
@@ -217,13 +213,15 @@ class InternalCircuitry : protected Robot{
 int main(){
    
    Robot* myRobot = new UAV(54);
-   vector<Robot*> robots(6);
+   Robot* myAgv = new AGV(89.01);
+   vector<Robot*> robots(4);
    robots.at(0)= new AGV(90.23);
    robots.at(1) = new AGV(100.00);
    robots[2] = new UAV(18.210564);
    robots[3] = new UAV(24);
 
-   robots.at(4)  = robots.at(2) > robots.at(3);
+   if (myRobot > myAgv) myRobot->displayInfo();
+   else myAgv->displayInfo();
 
    bool check = robots[2] == robots[3];
       if(check) cout<<"\n > Same Robots identified!\n";
@@ -238,6 +236,7 @@ int main(){
 
    myRobot->setSpeed(10)->setTarget(45, 12);
    myRobot->displayInfo();
+   emergencyBypass(*myRobot);
 
    for (int i=0; i<robots.size() ;i++){
       robots[i]->displayInfo();
@@ -248,3 +247,4 @@ int main(){
 
    return 0;
 }
+
