@@ -26,9 +26,20 @@ You are building a secure transaction logger for a trading desk. The system must
 *********************************************/
 
 #include <iostream>
+#include <exception>
 using namespace std;
 
 class Ledger;
+
+class InvalidTradeException : public exception{
+    string message;
+    public:
+        InvalidTradeException(string msg) : message(msg){}
+
+        string getException(){
+            return message;
+        }
+};
 
 class Transaction{
     private:
@@ -61,20 +72,28 @@ class Ledger{
     public:
         void post(Transaction t){
             if(t.amount <=0) 
-                throw(exception){};
-                
+                throw InvalidTradeException("Trade amount must be positive!");
+            
+            cout<<"Posting transacted amount: "<<t.amount<<endl;
         }
 };
 
 int main(){
 
-    Transaction t1 = 500.50, t2 = 600.10, t3 = t1+t2;
+    Transaction t1 = 500.50, t2 = 600.10, t3 = t1+t2, t4 = -100;
 
     double value =t1;
     cout<<"Amount passed to object 1: "<<value<<endl;
     
     cout<<t1<<t2<<t3;
     Ledger ledge;
-    ledge.post(t1);
+    try{
+        ledge.post(t1);
+        ledge.post(t4);
+    }
+    catch(InvalidTradeException exObject){
+        cout<<"Exception: "<<exObject.getException()<<endl;
+    }
+    
     return 0;
 }
