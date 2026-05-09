@@ -133,11 +133,13 @@ class AGV : public Robot{
 
       AGV(float capacity) : Robot(capacity){
          this->batteryCapacity = capacity;
+         loadWeight = 1000;
+         wheelFriction =0.2;
       }
 
 
       void identifyType() override{
-            cout<<"\n>> Robot Type: AGV\n";
+            cout<<">> Robot Type: AGV\n";
       }
 
       void calculatePath(float targetX, float targetY) override{
@@ -145,7 +147,11 @@ class AGV : public Robot{
          cout<<"> Calculated path distance: "<<D<<endl;
       }
       void displayInfo() override{
+         cout<<"> Serial No.: "<<serialNo<<endl;
+         cout<<"> Battery Capacity: "<<this->batteryCapacity<<endl;
          identifyType();
+         cout<<"> Load Weight(in grams): "<<loadWeight<<endl;
+         cout<<"> Wheel Friction: "<<wheelFriction<<endl;
       }
 
       ~AGV(){
@@ -162,10 +168,12 @@ class UAV : public Robot{
       UAV(float capacity) : Robot(capacity){
          this->batteryCapacity = capacity;
          Xcoord = Ycoord = 0;
+         rotorSpeed = 10;
+         altitude = 0.00;
       }
 
       void identifyType() override{
-         cout<<"\n>> Robot Type: UAV\n";
+         cout<<">> Robot Type: UAV\n";
       }
 
       void calculatePath(float targetX, float targetY) override{
@@ -174,6 +182,8 @@ class UAV : public Robot{
       }
 
       void displayInfo() override{
+         cout<<"> Serial No.: "<<serialNo<<endl;
+         cout<<"> Battery Capacity: "<<this->batteryCapacity<<endl;
          identifyType();
          cout<<"> Rotor Speed: "<<rotorSpeed<<endl;
          cout<<"> Altitude reached: "<<altitude<<endl;
@@ -196,13 +206,15 @@ class InternalCircuitry : protected Robot{
       }
 
       void identifyType() override{
-         cout<<"\n>> Robot Type: Internal Circuitry (IC)\n";
+         cout<<">> Robot Type: Internal Circuitry (IC)\n";
       }
 
       void displayInfo() override{
+         cout<<"> Serial No.: "<<serialNo<<endl;
+         cout<<"> Battery Capacity: "<<this->batteryCapacity<<endl;
          identifyType();
-         cout<<"Battery voltage: "<<batteryVoltage<<endl;
-         cout<<"Motor Efficiency: "<<motorEfficiency<<endl;
+         cout<<"> Battery voltage: "<<batteryVoltage<<endl;
+         cout<<"> Motor Efficiency: "<<motorEfficiency<<endl;
       }
 
       ~InternalCircuitry(){
@@ -224,8 +236,8 @@ int main(){
    else myAgv->displayInfo();
 
    bool check = robots[2] == robots[3];
-      if(check) cout<<"\n > Same Robots identified!\n";
-      else cout<<"\n  > NO same robots identified!\n";
+      if(check) cout<<"\n> Same Robots identified!\n";
+      else cout<<"\n > NO same robots identified!\n";
 
 
    double testX =40.12;
@@ -244,7 +256,7 @@ int main(){
    }
 
    delete myRobot;
+   delete myAgv;
 
    return 0;
 }
-
