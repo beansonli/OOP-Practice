@@ -1,5 +1,4 @@
 /****************************
- * lemme try something
 **Domain Scenario:** Smart Grid Energy Management
 
 You are integrating a legacy analog power meter system with a new digital management dashboard.
@@ -14,9 +13,88 @@ You are integrating a legacy analog power meter system with a new digital manage
 *******************************/
 
 #include <iostream>
+#define METER_SIZE 5
 using namespace std;
 
+class DigitalDashboard;
+
+class LegacyMeter{
+    private:
+     int id;
+     static int countID;
+     float voltage;
+
+    public:
+    LegacyMeter(float voltage) {
+        this->voltage = voltage;
+        id = ++countID;
+    }
+    LegacyMeter(){
+        id = 0;
+        voltage = 0.00;
+    }
+
+    operator float() {
+        return float(voltage);
+    }
+
+    LegacyMeter& setID(int id){
+        this->id = id;
+        return *this;
+    }
+
+    ~LegacyMeter(){
+        cout<<"** Destroying meter with ID: "<<id<<endl;
+    }
+
+    void displayReading(){
+        cout<<"* Meter ID: "<<id<<endl;
+        cout<<"** Voltage: "<<voltage<<endl;
+    }
+
+    friend class DigitalDashboard;
+};
+int LegacyMeter::countID = 0;
+
+class DigitalDashboard{
+    public:
+    void totalVoltage(LegacyMeter meter[], int size){
+        float total=0, sum=0;
+        for(int i=0; i<size; i++){
+           total = meter[i];
+           sum += total;
+        }
+
+        cout<<"* Total Volatge Utilized: "<<sum<<endl;
+
+    }
+
+    ~DigitalDashboard(){
+        cout<<"** Destroying dashboard! \n";
+    }
+
+};
+
+
+
 int main(){
+    LegacyMeter* meters=  new LegacyMeter[METER_SIZE];
+    DigitalDashboard dashboard;
+    float voltage;
+
+    for(int i=0; i<METER_SIZE; i++){
+        cout<<"Volatge of meter "<<i+1<<": ";
+        cin>>voltage;
+        meters[i] = voltage;
+    }
+
+    meters[0].setID(2).setID(40).setID(1).setID(90).setID(10);
+    dashboard.totalVoltage(meters, METER_SIZE);
+
+     for(int i=0; i<METER_SIZE; i++){
+        meters[i].displayReading();
+    }
+    
 
     return 0;
 }
