@@ -30,13 +30,7 @@ You are developing a core physics engine for a simulation software. The engine n
 #include <iostream>
 using namespace std;
 
-class Robot{
 
-};
-
-class AerialDrone : public Robot{
-    
-}
 
 int main(){
 

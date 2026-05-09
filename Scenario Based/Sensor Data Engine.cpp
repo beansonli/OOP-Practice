@@ -43,15 +43,16 @@ class SensorStream<char*>{
 
    public:
      inline void addReading(const char* val){
-        readings.push_back(val);
+        //readings.push_back(val);
      }
 
      char* calculateAverage(){
         vector<char*>::iterator i;
 
-        for(i=readings.start(); i<=readings.end(); i++){
+       /* for(i=readings.start(); i<=readings.end(); i++){
             
         }
+       */
         
      }
 
