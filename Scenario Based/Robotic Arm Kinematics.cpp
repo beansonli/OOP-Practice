@@ -22,11 +22,14 @@ class Matrix{
 
         }
 
-        // Matrix(const Matrix& copy){
-        //     this->rows = copy.rows;
-        //     this->cols = copy.cols;
-            
-        // }
+        Matrix(const Matrix& other) : rows(other.rows), cols(other.cols) {
+            data = new double*[rows];
+            for (int i = 0; i < rows; ++i) {
+                data[i] = new double[cols];
+                for (int j = 0; j < cols; j++)
+                    data[i][j] = other.data[i][j];
+            }
+        }
 
         void setData(){
             for(int i = 0 ; i < rows ; i++){
@@ -41,13 +44,13 @@ class Matrix{
             if(this->rows != matrix.rows || this->cols != matrix.cols)
                 throw "Dimensions Mismatch!";
 
-            Matrix* temp = new Matrix( matrix.rows, matrix.cols);
+            Matrix temp( matrix.rows, matrix.cols);
             for(int i = 0 ; i < rows ; i++){
                 for(int j = 0 ; j < cols ; j++){
-                        temp->data[i][j] = this->data[i][j] + matrix.data[i][j] ; 
+                        temp.data[i][j] = this->data[i][j] + matrix.data[i][j] ; 
                 }
             }
-            return *temp;
+            return temp;
         }
 
         friend ostream& operator << (ostream& , const Matrix&);
