@@ -26,11 +26,12 @@ class LegacyMeter{
      float voltage;
 
     public:
-    LegacyMeter(float voltage=0) {
+    LegacyMeter(float voltage) {
         this->voltage = voltage;
         id = ++countID;
+        cout<<"\nParam called!\n";
     }
-    LegacyMeter() = delete;
+    LegacyMeter() {cout<<"\nDefault called!\n";}
 
     operator float() {
         return float(voltage);
@@ -62,7 +63,6 @@ class DigitalDashboard{
            total = meter[i];
            sum += total;
         }
-
         cout<<"* Total Volatge Utilized: "<<sum<<endl;
 
     }
@@ -76,15 +76,18 @@ class DigitalDashboard{
 
 
 int main(){
-    LegacyMeter* meters=  new LegacyMeter[METER_SIZE];
+    // Initially default constructor gets called when dynamically creating the array of objects
+    LegacyMeter* meters = new LegacyMeter[METER_SIZE];;
     DigitalDashboard dashboard;
 
     for(int i=START; i<METER_SIZE; i++){
         float voltage;
         cout<<"Volatge of meter "<<i+1<<": ";
         cin>>voltage;
-        meters[i] = float(voltage);
+        // some temporary constrcutions happen as we override the default ones
+        meters[i] =  float(voltage); // temporary constructions post copying, once this is out of scope, get destroyed.
     }
+    
 
     meters[START].setID(2).setID(40).setID(1).setID(90).setID(10);
     dashboard.totalVoltage(meters, METER_SIZE);
