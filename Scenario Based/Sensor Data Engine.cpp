@@ -14,8 +14,28 @@ You are building a generic driver to process incoming data from various IoT sens
 ******************************************************/
 
 #include <iostream>
+#include <vector>
 using namespace std;
 
+template <typename T>
+class SensorStream{
+    private:
+     vector<T> readings;
+    
+    public:
+     inline void addReading(const T val){
+        readings.push_back(val);
+     }
+
+     void avgReading(){
+        iterator<T> i;
+
+        for(i=readings.start(); i<=readings.end(); i++){
+            
+        }
+        
+     }
+};
 
 int main(){
 
