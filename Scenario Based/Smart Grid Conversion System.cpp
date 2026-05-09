@@ -77,7 +77,7 @@ class DigitalDashboard{
 
 int main(){
     // Initially default constructor gets called when dynamically creating the array of objects
-    LegacyMeter* meters = new LegacyMeter[METER_SIZE];;
+    LegacyMeter* meters = new LegacyMeter[METER_SIZE];
     DigitalDashboard dashboard;
 
     for(int i=START; i<METER_SIZE; i++){

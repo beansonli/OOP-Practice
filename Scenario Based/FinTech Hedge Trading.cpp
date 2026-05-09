@@ -54,8 +54,7 @@ class Transaction{
         }
 
         Transaction operator + (const Transaction& obj){
-            Transaction* temp = new Transaction(this->amount + obj.amount);
-            return *temp;
+            return Transaction(this->amount + obj.amount);
         }
         
         friend class Ledger;

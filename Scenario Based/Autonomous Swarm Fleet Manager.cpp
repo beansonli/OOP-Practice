@@ -81,10 +81,9 @@ class Robot{
          cout << ">> Generic path calculation." << endl;
       }
 
-      Robot* setSpeed(double speed = 0){
+      Robot& setSpeed(double speed = 0){
          this->speed = speed;
-
-         return this;
+         return *this;
       }
 
       void setTarget(double x=0, double y=0){
@@ -124,7 +123,7 @@ void emergencyBypass(Robot& r){
 
 }
 
-class AGV : public Robot{
+class AGV : virtual public Robot{
    private:
       float wheelFriction; 
       int loadWeight;
@@ -132,7 +131,6 @@ class AGV : public Robot{
    public:
 
       AGV(float capacity) : Robot(capacity){
-         this->batteryCapacity = capacity;
          loadWeight = 1000;
          wheelFriction =0.2;
       }
@@ -159,14 +157,13 @@ class AGV : public Robot{
       }
 };
 
-class UAV : public Robot{
+class UAV : virtual public Robot{
    private:
       float altitude, rotorSpeed;
 
    public:
 
       UAV(float capacity) : Robot(capacity){
-         this->batteryCapacity = capacity;
          Xcoord = Ycoord = 0;
          rotorSpeed = 10;
          altitude = 0.00;
@@ -246,7 +243,7 @@ int main(){
    for (int i=0; i<robots.size() ;i++)
       robots[i]->calculatePath(testX , testY); //testing coordinates
 
-   myRobot->setSpeed(10)->setTarget(45, 12);
+   myRobot->setSpeed(10).setTarget(45, 12);
    myRobot->displayInfo();
    emergencyBypass(*myRobot);
 
