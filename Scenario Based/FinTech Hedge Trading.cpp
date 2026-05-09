@@ -36,20 +36,45 @@ class Transaction{
         double amount;
 
     public:
+        Transaction(double val) : amount(val),  currencyCode("USD"){}
+
+        operator double(){
+            return amount;
+        }
+
+        Transaction operator + (const Transaction& obj){
+            Transaction* temp = new Transaction(this->amount + obj.amount);
+            return *temp;
+        }
+        
         friend class Ledger;
         friend ostream& operator << (ostream& , const Transaction&);
 };
 
 ostream& operator << (ostream& stream , const Transaction& transact){
-    stream << "-/ Amount Transacted: "<<transact.amount << "\n-/ Currency Code: "<< transact.currencyCode;
+    stream << "[ " << transact.currencyCode << ": "<<transact.amount <<" ]" << endl;
     return stream;
 }
 
 class Ledger{
 
+    public:
+        void post(Transaction t){
+            if(t.amount <=0) 
+                throw(exception){};
+                
+        }
 };
 
 int main(){
 
+    Transaction t1 = 500.50, t2 = 600.10, t3 = t1+t2;
+
+    double value =t1;
+    cout<<"Amount passed to object 1: "<<value<<endl;
+    
+    cout<<t1<<t2<<t3;
+    Ledger ledge;
+    ledge.post(t1);
     return 0;
 }
