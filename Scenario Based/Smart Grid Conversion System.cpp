@@ -14,6 +14,7 @@ You are integrating a legacy analog power meter system with a new digital manage
 
 #include <iostream>
 #define METER_SIZE 5
+#define START 0
 using namespace std;
 
 class DigitalDashboard;
@@ -25,14 +26,11 @@ class LegacyMeter{
      float voltage;
 
     public:
-    LegacyMeter(float voltage) {
+    LegacyMeter(float voltage=0) {
         this->voltage = voltage;
         id = ++countID;
     }
-    LegacyMeter(){
-        id = 0;
-        voltage = 0.00;
-    }
+    LegacyMeter() = delete;
 
     operator float() {
         return float(voltage);
@@ -40,15 +38,15 @@ class LegacyMeter{
 
     LegacyMeter& setID(int id){
         this->id = id;
-        return *this;
+        return *(this+1);
     }
 
     ~LegacyMeter(){
-        cout<<"** Destroying meter with ID: "<<id<<endl;
+        cout<<"** Destroying meter with ID: "<<id<<endl<<endl;
     }
 
     void displayReading(){
-        cout<<"* Meter ID: "<<id<<endl;
+        cout<<"** Meter ID: "<<id<<endl;
         cout<<"** Voltage: "<<voltage<<endl;
     }
 
@@ -80,21 +78,22 @@ class DigitalDashboard{
 int main(){
     LegacyMeter* meters=  new LegacyMeter[METER_SIZE];
     DigitalDashboard dashboard;
-    float voltage;
 
-    for(int i=0; i<METER_SIZE; i++){
+    for(int i=START; i<METER_SIZE; i++){
+        float voltage;
         cout<<"Volatge of meter "<<i+1<<": ";
         cin>>voltage;
-        meters[i] = voltage;
+        meters[i] = float(voltage);
     }
 
-    meters[0].setID(2).setID(40).setID(1).setID(90).setID(10);
+    meters[START].setID(2).setID(40).setID(1).setID(90).setID(10);
     dashboard.totalVoltage(meters, METER_SIZE);
 
-     for(int i=0; i<METER_SIZE; i++){
+     for(int i=START; i<METER_SIZE; i++){
         meters[i].displayReading();
     }
-    
 
+    delete[] meters;
+    
     return 0;
 }
