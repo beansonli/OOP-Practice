@@ -27,14 +27,35 @@ class SensorStream{
         readings.push_back(val);
      }
 
-     void avgReading(){
-        iterator<T> i;
+     T calculateAverage(){
+        vector<T>::iterator i;
 
         for(i=readings.start(); i<=readings.end(); i++){
             
         }
         
      }
+};
+
+class SensorStream<char*>{
+   private:
+      vector<char*> readings;
+
+   public:
+     inline void addReading(const char* val){
+        readings.push_back(val);
+     }
+
+     char* calculateAverage(){
+        vector<char*>::iterator i;
+
+        for(i=readings.start(); i<=readings.end(); i++){
+            
+        }
+        
+     }
+
+
 };
 
 int main(){
