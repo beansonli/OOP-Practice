@@ -15,7 +15,48 @@ You are building a generic driver to process incoming data from various IoT sens
 
 #include <iostream>
 #include <vector>
+#include <exception>
 using namespace std;
+
+class NoDataException : public exception{
+   string message;
+
+   public:
+      NoDataException(string msg) : message(msg){}
+      
+      const char* getException(){
+         return message.c_str();
+      }
+};
+
+class LogicError : public exception{
+   string message;
+
+   public:
+      LogicError(string msg) : message(msg){}
+      
+      const char* what() const noexcept override{
+         return message.c_str();
+      }
+};
+
+template<typename T> class SensorStream;
+
+template<> class SensorStream<const char*>{
+   private:
+      vector<const char*> readings;
+
+   public:
+      inline void addReading(const char* val){
+         readings.push_back(val);
+      }
+
+      void calculateAverage(){
+         throw LogicError("Stream Messages cannot be averaged!");
+      }
+
+
+};
 
 template <typename T>
 class SensorStream{
@@ -28,38 +69,49 @@ class SensorStream{
      }
 
      T calculateAverage(){
-        vector<T>::iterator i;
+         if(readings.empty())
+            throw NoDataException("Sensor offline");
 
-        for(i=readings.start(); i<=readings.end(); i++){
-            
-        }
+         typename vector<T>::iterator i;
+         T avg = 0;
+
+         for(i=readings.begin(); i!=readings.end(); ++i){
+            avg += *i;
+         }
         
+         return avg;
      }
 };
 
-class SensorStream<char*>{
-   private:
-      vector<char*> readings;
-
-   public:
-     inline void addReading(const char* val){
-        //readings.push_back(val);
-     }
-
-     char* calculateAverage(){
-        vector<char*>::iterator i;
-
-       /* for(i=readings.start(); i<=readings.end(); i++){
-            
-        }
-       */
-        
-     }
-
-
-};
 
 int main(){
 
-    return 0;
+   SensorStream<int> ADC;
+
+   SensorStream<float> temperatureSensor;
+   temperatureSensor.addReading(41.5);
+   temperatureSensor.addReading(30.7);
+
+   SensorStream<const char*> recorder;
+   recorder.addReading("Active Recorder");
+   recorder.addReading("How can i forget, Hello World!");
+
+   try{
+      float tempAvg = temperatureSensor.calculateAverage();
+      cout<<"Avg temp: "<<tempAvg<<endl;
+
+      /* exception blobs
+      int adcAvg = ADC.calculateAverage();
+      cout<<"Avg ADC data: "<<adcAvg<<endl;
+      */
+      recorder.calculateAverage();
+      
+   }
+   catch(NoDataException e){
+      cout<<"Error: "<<e.getException()<<endl;
+   }
+   catch(LogicError strExp){
+      cout<<"Error: "<<strExp.what()<<endl;
+   }
+   return 0;
 }
