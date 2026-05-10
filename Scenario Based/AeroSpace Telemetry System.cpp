@@ -26,9 +26,111 @@ You need to build a system that tracks different types of aerospace vehicles, pr
 ******************************************************/
 
 #include <iostream>
+#include <exception>
+#include <vector>
+#include <cmath>
 using namespace std;
 
-int main(){
+class TelemetryLostException : public exception{
+   private:
+      string message;
+   
+   public:
+      TelemetryLostException(string msg): message(msg){}
 
-    return 0;
+      const char* what() const throw() override{
+         return message.c_str();
+      }
+};
+
+class AerospaceVehicle{
+   protected:
+      string callsign;
+      double altitude;
+      static int activeConnections;
+
+   public:
+      AerospaceVehicle(string sign, double altitude){
+         this->callsign = sign;
+         this->altitude = altitude;
+         activeConnections++;
+      }
+
+      static int getActiveConnections(){
+         return activeConnections;
+      }
+
+      virtual double calculateSignalStrength()=0;
+
+      virtual ~AerospaceVehicle(){
+         cout<<"Link severed for "<<callsign<<endl;
+         activeConnections--;
+      }
+
+};
+
+int AerospaceVehicle::activeConnections = 0 ;
+
+class LowEarthSatellite : virtual public AerospaceVehicle{
+   private:
+      double orbitVelocity;
+
+   public:
+      LowEarthSatellite(double velocity, string callsign, double altitude) : AerospaceVehicle(callsign , altitude){
+         this->orbitVelocity = velocity;
+      }
+
+      double calculateSignalStrength() override{
+         return orbitVelocity/altitude ; //some assumptions upon return statements
+      }
+};
+
+class DeepSpaceProbe : virtual public AerospaceVehicle{
+   private:
+      double probeType;
+
+   public:
+      DeepSpaceProbe(double type, string callsign, double altitude) : AerospaceVehicle(callsign , altitude){
+         this->probeType = type;
+      }
+
+      double calculateSignalStrength() override{
+         if(altitude > pow( 10 , 8 ) )
+            throw TelemetryLostException("Lost connection!");
+
+         return altitude/probeType ;
+      }
+};
+
+
+int main(){
+   vector<AerospaceVehicle*> vehicles;
+   LowEarthSatellite* sat1 = new LowEarthSatellite(1200.54, "Angel Dart", 4543.65);
+   LowEarthSatellite* sat2 = new LowEarthSatellite(221.3, "NASCAR xx", 154700.65);
+
+   DeepSpaceProbe* probe1 = new DeepSpaceProbe(150, "Scrumer", 34564543.65);
+   DeepSpaceProbe* probe2 = new DeepSpaceProbe(600.5, "Rovert", 104434543.65);
+
+   vehicles.push_back(sat1);
+   vehicles.push_back(sat2);
+   vehicles.push_back(probe1);
+   vehicles.push_back(probe2);
+
+   vector<AerospaceVehicle*>::iterator i;
+   try{
+      for(i = vehicles.begin(); i!= vehicles.end(); ++i){
+         cout<<(*i)->calculateSignalStrength()<<endl;
+      }
+   }
+   catch(TelemetryLostException& e){
+      cout<<"Error: "<<e.what()<<endl;
+   }
+
+   for(i = vehicles.begin(); i!= vehicles.end(); ++i){
+         delete *i;
+   }
+
+   cout<<"Active Connections: "<<AerospaceVehicle::getActiveConnections()<<endl;
+
+   return 0;
 }
