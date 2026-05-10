@@ -37,7 +37,91 @@ It needs to handle complex financial derivatives, execute math at high speeds, a
 #include <iostream>
 using namespace std;
 
-int main(){
+class FinancialAsset{
+   protected:
+      double baseValue;
+   
+   public:
+      FinancialAsset(double cashValue) : baseValue(cashValue) {}
 
-    return 0;
+      operator double(){
+         return baseValue;
+      }
+};
+
+class Stock : virtual public FinancialAsset{
+
+};
+
+class Option : virtual public FinancialAsset{
+
+};
+
+class ConvertibleBond : public Stock,  public Option{
+
+};
+
+template <typename T>
+class TradeLog{
+   private:
+      T assetType;
+      int logSize;
+      T* transactions = new T[logSize];
+
+   public:
+      TradeLog(T logValue,  int size, T* transaction[]) : assetType(logValue), logSize(size){
+         for(int i=0 ; i<size; i++)
+            this->transactions[i] = transaction[i];
+      }
+
+      TradeLog(const TradeLog& log){
+         this->assetType = log.assetType;
+         this->logSize = log.logSize;
+         this->transactions = new T[log.logSize];
+
+         for(int i = 0; i< log.logSize ; i++)   this->transactions[i] = log.transactions[i];        
+      }
+
+      TradeLog& operator + (const TradeLog& logObj){
+         int newSize =  this->logSize + logObj.logSize ;
+         T newTransactions[newSize];
+
+         for(int i = 0; i< this->logSize ; i++){ newTransactions[i] = this->transactions[i]; }
+         for(int i = this->logSize -1 ; i < logObj.logSize ; i++){ newTransactions[i] = logObj.transactions[i]; }
+
+         return TradeLog( (this->assetType + "-" + logObj.assetType), newSize , newTransactions );
+      }
+
+      inline void applyMarketShock(double percentage){
+         for(int i=0 ; i<logSize; i++)
+            this->transactions[i] -= (percentage/100)*transactions[i];
+      }
+
+      ~TradeLog(){
+         cout<<"> Deleting all transactions!\n";
+         delete[] transactions;
+      }
+
+      friend ostream& operator << (ostream& , const TradeLog&);
+};
+
+template <typename T>
+ostream& operator << (ostream& stream , const TradeLog<T>& log){
+   stream<<"\n[Asset Type: ]"<<log.assetType;
+   stream<<"\n[Transactions Associated: ]\n";
+
+   for(int i= 0; i< log.logSize; i++)
+      stream<<log.transactions[i]<<endl;
+
+   return stream;
+}
+
+int main(){
+   double transacts[] ={120, 10.25, 45.67, 90.4667, 140};
+   double value = 2100.4;
+   TradeLog<double> log1(value, 5, transacts);
+   TradeLog<ConvertibleBond> bond();
+
+
+   return 0;
 }
