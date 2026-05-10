@@ -35,6 +35,7 @@ It needs to handle complex financial derivatives, execute math at high speeds, a
 ******************************************************/
 
 #include <iostream>
+
 using namespace std;
 
 class FinancialAsset{
@@ -42,7 +43,7 @@ class FinancialAsset{
       double baseValue;
    
    public:
-      FinancialAsset(double cashValue) : baseValue(cashValue) {}
+      FinancialAsset(double cashValue = 0) : baseValue(cashValue) {}
 
       operator double(){
          return baseValue;
@@ -50,26 +51,40 @@ class FinancialAsset{
 };
 
 class Stock : virtual public FinancialAsset{
-
+   public:
+   Stock(double baseValue = 0): FinancialAsset(baseValue){}
 };
 
 class Option : virtual public FinancialAsset{
-
+   public:
+      Option(double baseValue = 0): FinancialAsset(baseValue){}
 };
 
 class ConvertibleBond : public Stock,  public Option{
-
+   public:
+      ConvertibleBond(double value = 0){
+         this->baseValue = value;
+      }
 };
+
+template <typename T>
+class TradeLog;
+
+
+template <typename T>
+ostream& operator << (ostream& stream , const TradeLog<T>& log);
 
 template <typename T>
 class TradeLog{
    private:
       T assetType;
       int logSize;
-      T* transactions = new T[logSize];
+      T* transactions;
 
    public:
-      TradeLog(T logValue,  int size, T* transaction[]) : assetType(logValue), logSize(size){
+      TradeLog(T logValue,  int size, T transaction[]) : assetType(logValue), logSize(size){
+         this->transactions = new T[logSize];
+
          for(int i=0 ; i<size; i++)
             this->transactions[i] = transaction[i];
       }
@@ -82,19 +97,21 @@ class TradeLog{
          for(int i = 0; i< log.logSize ; i++)   this->transactions[i] = log.transactions[i];        
       }
 
-      TradeLog& operator + (const TradeLog& logObj){
+      TradeLog operator + (const TradeLog& logObj){
          int newSize =  this->logSize + logObj.logSize ;
-         T newTransactions[newSize];
+         T* newTransactions= new T[newSize];
 
          for(int i = 0; i< this->logSize ; i++){ newTransactions[i] = this->transactions[i]; }
-         for(int i = this->logSize -1 ; i < logObj.logSize ; i++){ newTransactions[i] = logObj.transactions[i]; }
+         for(int i = 0 ; i < logObj.logSize ; i++){ newTransactions[i + this->logSize] = logObj.transactions[i]; }
 
-         return TradeLog( (this->assetType + "-" + logObj.assetType), newSize , newTransactions );
+         TradeLog temp ( this->assetType , newSize , newTransactions );
+         delete[] newTransactions;
+         return temp;
       }
 
       inline void applyMarketShock(double percentage){
          for(int i=0 ; i<logSize; i++)
-            this->transactions[i] -= (percentage/100)*transactions[i];
+            this->transactions[i] -= (percentage/100)*(double)transactions[i];
       }
 
       ~TradeLog(){
@@ -102,26 +119,34 @@ class TradeLog{
          delete[] transactions;
       }
 
-      friend ostream& operator << (ostream& , const TradeLog&);
+      friend ostream& operator << (ostream& stream , const TradeLog<T>& log){
+         stream<<"\n[Portfolio Value:]"<<log.assetType;
+         stream<<"\n[Transactions Associated:]\n";
+
+         for(int i= 0; i< log.logSize; i++)
+            stream<<double(log.transactions[i])<<endl;
+
+         return stream;
+      }
 };
 
-template <typename T>
-ostream& operator << (ostream& stream , const TradeLog<T>& log){
-   stream<<"\n[Asset Type: ]"<<log.assetType;
-   stream<<"\n[Transactions Associated: ]\n";
-
-   for(int i= 0; i< log.logSize; i++)
-      stream<<log.transactions[i]<<endl;
-
-   return stream;
-}
 
 int main(){
-   double transacts[] ={120, 10.25, 45.67, 90.4667, 140};
-   double value = 2100.4;
-   TradeLog<double> log1(value, 5, transacts);
-   TradeLog<ConvertibleBond> bond();
+   double data1[] = {100.5, 200.7};
 
+   TradeLog<double> assetlog1(10000.0, 2, data1);
+   TradeLog<double> assetlog2(assetlog1);
+
+   TradeLog<double> assetlog3 = assetlog1 + assetlog2;
+   cout<<"Combined value: "<<assetlog3<<endl;
+
+   cout << "Before Shock:" << assetlog2 << endl;
+   assetlog2.applyMarketShock(10); // 10% crash
+   cout << "After Shock:" << assetlog2 << endl;
+
+   
+
+   
 
    return 0;
 }
